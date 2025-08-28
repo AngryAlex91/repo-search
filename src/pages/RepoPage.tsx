@@ -4,6 +4,7 @@ import { useDebounced } from "../hooks/useDebounce";
 import { Pagination } from "../components/Pagination";
 import { SearchForm } from "../components/SearchForm";
 import { SearchResults } from "../components/SearchResults";
+import { AdvancedSettings } from "../components/AdvancedSettings";
 
 
 
@@ -135,13 +136,7 @@ export const RepoPage: React.FC = () => {
   }, [])
 
   return (
-    <div className="app">
-      
-      <header className="app-header">
-        <h1>GitHub Repository Search</h1>
-        <p>Discover and explore open source projects</p>
-      </header>
-      
+    <>
       <SearchForm
         filters={filters}
         onFiltersChange={updateFilters}
@@ -150,34 +145,11 @@ export const RepoPage: React.FC = () => {
         loading={loading}
       />
       
-      {/* Token Input */}
-      <details className="token-section">
-        <summary>⚙️ Advanced Settings</summary>
-        <div className="token-input">
-          <label htmlFor="github-token">
-            GitHub Personal Access Token (optional)
-          </label>
-          <input
-            id="github-token"
-            type="password"
-            placeholder="ghp_xxxxxxxxxxxx"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-          />
-          <p className="token-help">
-            Adding a token increases your rate limits from 60 to 5,000 requests per hour.
-            <br />
-            <a 
-              href="https://github.com/settings/tokens" 
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              Create a token here
-            </a> (no scopes needed for public repositories).
-          </p>
-        </div>
-      </details>
-      
+      <AdvancedSettings
+        token={token}
+        onTokenChange={setToken}
+      />
+     
       <main>
         <SearchResults
           repos={repos}
@@ -193,20 +165,6 @@ export const RepoPage: React.FC = () => {
           onPageChange={(page) => updateFilters({ page })}
         />
       </main>
-      
-      <footer className="app-footer">
-        <p>
-          Powered by the{" "}
-          <a 
-            href="https://docs.github.com/en/rest/search"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            GitHub Search API
-          </a>
-          . Rate limits apply for unauthenticated requests.
-        </p>
-      </footer>
-    </div>
+    </>
   );
 }

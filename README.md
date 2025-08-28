@@ -48,6 +48,7 @@ A React TypeScript application that allows users to search GitHub repositories u
 ```
 src/
 ├── components/
+│   ├── AdvancedSettings.tsx # GitHub token configuration
 │   ├── Pagination.tsx      # Page navigation component
 │   ├── RepoCard.tsx        # Individual repository display
 │   ├── SearchForm.tsx      # Search input and filters
