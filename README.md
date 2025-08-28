@@ -48,7 +48,7 @@ A React TypeScript application that allows users to search GitHub repositories u
 ```
 src/
 ├── api/
-│   └── getPosts.ts           # Rename: more descriptive than "getPosts"
+│   └── getPosts.ts           # Api call for GitHub repositories"
 ├── components/
 │   ├── AdvancedSettings.tsx # GitHub token configuration
 │   ├── Pagination.tsx      # Page navigation component
