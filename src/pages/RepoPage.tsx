@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Repo, SearchResponse, SearchFilters } from "../types";
 import { useDebounced } from "../hooks/useDebounce";
 import { Pagination } from "../components/Pagination";
@@ -27,17 +27,11 @@ export const RepoPage: React.FC = () => {
   const debouncedQuery = useDebounced(filters.query, 500)
   const debouncedLanguage = useDebounced(filters.language, 500)
   
-  const searchQuery = useMemo(() => {
-    const query = debouncedQuery.trim()
-    const lang = debouncedLanguage.trim()
-    return query + (lang ? ` language:${lang}` : "")
-  }, [debouncedQuery, debouncedLanguage])
+  const searchQuery = debouncedQuery.trim() + 
+    (debouncedLanguage.trim() ? ` language:${debouncedLanguage.trim()}` : "")
 
-  const totalPages = useMemo(() => {
-    if (!total) return 0
-    const maxPages = Math.floor(1000 / filters.perPage)
-    return Math.min(Math.ceil(total / filters.perPage), maxPages)
-  }, [total, filters.perPage])
+  const totalPages = !total ? 0 : 
+    Math.min(Math.ceil(total / filters.perPage), Math.floor(1000 / filters.perPage))
 
   const updateFilters = (newFilters: Partial<SearchFilters>) => {
     setFilters(prev => ({ ...prev, ...newFilters }))
