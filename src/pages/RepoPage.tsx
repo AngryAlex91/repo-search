@@ -26,8 +26,6 @@ export const RepoPage: React.FC = () => {
   const [token, setToken] = useState("")
   const abortControllerRef = useRef<AbortController | null>(null)
     
-  
-
   const debouncedQuery = useDebounced(filters.query, 500)
   const debouncedLanguage = useDebounced(filters.language, 500)
   
@@ -65,7 +63,6 @@ export const RepoPage: React.FC = () => {
             setError(err.message || "An unexpected error occurred")
             setRepos(null)
             setTotal(0)
-         
           }
           } else {
             setError("An unexpected error occurred")
@@ -74,8 +71,7 @@ export const RepoPage: React.FC = () => {
       setLoading(false)
     }
     
-
-  };
+  }
 
   const handleClear = () => {
     setFilters({
@@ -85,11 +81,11 @@ export const RepoPage: React.FC = () => {
       order: "desc",
       page: 1,
       perPage: 20,
-    });
+    })
     setRepos(null)
     setTotal(0)
     setError(null)
-  };
+  }
 
   // Search when query changes or page/sort options change
   useEffect(() => {
@@ -100,13 +96,12 @@ export const RepoPage: React.FC = () => {
       setTotal(0)
       setError(null)
     }
-  }, [searchQuery, filters.page, filters.sort, filters.order, filters.perPage]);
+  }, [searchQuery, filters.page, filters.sort, filters.order, filters.perPage])
 
     // Cleanup on unmount
     useEffect(() => {
-      return () => abortControllerRef.current?.abort();
+      return () => abortControllerRef.current?.abort()
     }, [])
-
 
   return (
     <>
