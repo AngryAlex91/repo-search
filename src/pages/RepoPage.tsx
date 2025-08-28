@@ -5,6 +5,7 @@ import { Pagination } from "../components/Pagination";
 import { SearchForm } from "../components/SearchForm";
 import { SearchResults } from "../components/SearchResults";
 import { AdvancedSettings } from "../components/AdvancedSettings";
+import { getPosts } from "../api/getPosts";
 
 
 
@@ -23,8 +24,10 @@ export const RepoPage: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [token, setToken] = useState("")
-  
   const abortControllerRef = useRef<AbortController | null>(null)
+    
+  
+
   const debouncedQuery = useDebounced(filters.query, 500)
   const debouncedLanguage = useDebounced(filters.language, 500)
   
@@ -41,68 +44,37 @@ export const RepoPage: React.FC = () => {
     }
   };
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!searchQuery) return
-    
-    // Cancel any ongoing request
+
     abortControllerRef.current?.abort()
     const controller = new AbortController()
     abortControllerRef.current = controller
-    
+
     setLoading(true)
-    setError(null)
-    
-    const url = new URL("https://api.github.com/search/repositories")
-    url.searchParams.set("q", searchQuery)
-    url.searchParams.set("per_page", filters.perPage.toString())
-    url.searchParams.set("page", filters.page.toString())
-    
-    if (filters.sort !== "best") {
-      url.searchParams.set("sort", filters.sort)
-      url.searchParams.set("order", filters.order)
-    }
-    
-    const headers: Record<string, string> = {
-      "Accept": "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-    }
-    
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
-    }
-    
-    fetch(url.toString(), { headers, signal: controller.signal })
-      .then(async (response) => {
-        if (!response.ok) {
-          let message = `${response.status} ${response.statusText}`
-          try {
-            const data = await response.json()
-            if (data?.message) message = data.message;
-          } catch {}
-          
-          if (response.status === 403 && message.toLowerCase().includes("rate limit")) {
-            message += "\n\nTip: Add a GitHub personal access token to increase your rate limits."
+    setError(null) 
+
+    try {
+      const data: SearchResponse = await getPosts(filters, token, searchQuery, controller.signal)
+          setRepos(data.items)
+          setTotal(data.total_count)
+          setError(null)
+    } catch(err) {
+       if (err instanceof Error) {
+          if (err.name !== "AbortError") {
+            setError(err.message || "An unexpected error occurred")
+            setRepos(null)
+            setTotal(0)
+         
           }
-          
-          throw new Error(message)
-        }
-        return response.json()
-      })
-      .then((data: SearchResponse) => {
-        setRepos(data.items)
-        setTotal(data.total_count)
-        setError(null)
-      })
-      .catch((err) => {
-        if (err.name !== "AbortError") {
-          setError(err.message || "An unexpected error occurred")
-          setRepos(null)
-          setTotal(0)
-        }
-      })
-      .finally(() => {
-        setLoading(false)
-      });
+          } else {
+            setError("An unexpected error occurred")
+          }
+    } finally {
+      setLoading(false)
+    }
+    
+
   };
 
   const handleClear = () => {
@@ -130,10 +102,11 @@ export const RepoPage: React.FC = () => {
     }
   }, [searchQuery, filters.page, filters.sort, filters.order, filters.perPage]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => abortControllerRef.current?.abort();
-  }, [])
+    // Cleanup on unmount
+    useEffect(() => {
+      return () => abortControllerRef.current?.abort();
+    }, [])
+
 
   return (
     <>
